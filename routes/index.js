@@ -7,6 +7,11 @@ const typeRouter = require('./typeRouter');
 const brandRouter = require('./brandRouter');
 
 router.use('/user', userRouter);
+
+//todo implement admin and seller function
+// router.use('/admin', userRouter);
+// router.use('/seller', userRouter);
+
 router.use('/product', productRouter);
 router.use('/type', typeRouter);
 router.use('/brand', brandRouter);

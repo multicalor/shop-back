@@ -1,29 +1,16 @@
-const uuid = require('uuid')
-const path = require('path')
 const {Product, ProductInfo} = require('../models/models')
+const ProductService = require('../services/productService')
 const ApiError = require('../error/ApiError')
 
 class productController {
   async create(req, res, next) {
     try {
-      let {name, price, brandId, typeId, info} = req.body;
-      const {img} = req.files;
-      let fileName = uuid.v4()+".jpg";
-      img.mv(path.resolve(__dirname, '..', 'static', fileName));
+      const productData = req.body;
+      console.log(productData);
+      process.exit();
 
-      const product = await Product.create({name, price, brandId, typeId, img: fileName});
-
-      if (info) {
-        info = JSON.parse(info);
-        info.forEach(i =>
-        ProductInfo.create({
-          title:i.title,
-          description: i.description,
-          productId: product.id
-        })
-        )
-      }
-
+      let {img} = req.files;
+      let product = await ProductService.create(productData, img);
       return res.json(product);
     } catch (e) {
       next(ApiError.badRequest(e.message));
@@ -32,36 +19,30 @@ class productController {
   }
 
   async getAll(req, res) {
-    let {brandId, typeId, limit, page} = req.query;
-    page = page || 1;
-    limit = limit || 9;
-    let offset = page * limit - limit;
-    let product;
-    if(!brandId && !typeId) {
-      product = await Product.findAndCountAll({limit, offset})
-    }
-    if(brandId && !typeId) {
-      product = await Product.findAndCountAll({where:{brandId}, limit, offset})
-    }
-    if(!brandId && typeId) {
-      product = await Product.findAndCountAll({where:{typeId}, limit, offset})
-    }
-    if(brandId && typeId) {
-      product = await Product.findAndCountAll({where:{typeId, brandId}, limit, offset})
-    }
-    return res.json(product)
-  }
-
-  async getOne(req, res) {
-    const {id} = req.params;
-    const product = await Product.findOne(
-        {
-            where: {id},
-            include: [{model:ProductInfo, as: 'info'}]
-        },
-    )
+    let product = await ProductService.getAll(req.query);
     return res.json(product);
   }
+  //todo transfer to sevice
+  async getOne(req, res) {
+    const {id} = req.params;
+    console.log(id)
+    const product = await ProductService.getOne(id);
+    return res.json(product);
+  }
+
+  async update(req, res) {
+    // const {id} = req.params;
+    const newProductData = req.body;
+
+  }
+  //todo transfer to sevice
+  async addToBasketProducts(req, res) {
+    // const {id} = req.params;
+    // const {id} = req.params;
+    // const product ;
+    // return res.json(product);
+  }
+
 }
 
 
