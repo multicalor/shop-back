@@ -3,8 +3,8 @@ const ApiError = require('../error/ApiError');
 
 class UserController {
   async registration(req, res) {
-    const token = await userService.registration(req.body)
-    return res.json({token});
+    const answer = await userService.registration(req.body)
+    return res.json(answer);
   }
 
   async login(req, res) {
@@ -13,9 +13,9 @@ class UserController {
   }
 
   async check(req, res) {
-    let {user} = req;
-    const token = await userService.check(user);
-    res.json({token})
+      let {user} = req;
+      const token = await userService.check(user);
+      res.json({token})
   }
 
   async update(req, res) {
@@ -27,7 +27,6 @@ class UserController {
 
     res.json({newUserData})
     }catch (e){
-      console.log('------------->', newUserData);
       console.log(e);
       res.status(500).json({message: newUserData.status})
     }

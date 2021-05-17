@@ -12,26 +12,6 @@ const generateJwt = (id, email, role, firstName, phone) => {
 }
 
 class userService {
-  //todo Light registration
-  async preRegistration(userData) {
-    const {email, password, role, firstName, lastName, phone} = userData;
-
-    if (!email || !password) {
-      console.log(!email || !password)
-      return ApiError.badRequest('Некоректный email или password');
-    }
-
-    const condidate = await User.findOne({where: {email}});
-    if (condidate) {
-      return ApiError.badRequest('Пользователь с таким email уже существует.');
-    }
-    const hashPassword = await bcrypt.hash(password, 5);
-    const user = await User.create({email, role, firstName, lastName, phone, password: hashPassword});
-    const basket = await Basket.create({userId: user.id});
-    const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone);
-    return token;
-  }
-
   async registration(userData) {
     const {email, password, role, firstName, phone} = userData;
 
@@ -41,13 +21,13 @@ class userService {
 
     const condidate = await User.findOne({where: {email}});
     if (condidate) {
-      return ApiError.badRequest('Пользователь с таким email уже существует.');
+      return ApiError.ifBadDataReauest('User with this email already exists.');
     }
     const hashPassword = await bcrypt.hash(password, 5);
     const user = await User.create({email, role, firstName, phone, password: hashPassword});
     const basket = await Basket.create({userId: user.id});
     const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone);
-    return token;
+    return {token};
   }
 
   async login(userData) {
@@ -65,25 +45,30 @@ class userService {
   }
 
   async check(userData) {
-    const token = generateJwt(userData.id, userData.email, userData.role, userData.firstName, userData.phone)
-    return token;
+    try {
+      const answer = generateJwt(userData.id, userData.email, userData.role, userData.firstName, userData.phone)
+      return answer;
+    } catch (e) {
+      console.log(e)
+      return {status: "200", massage: "authorization failed"};
+    }
   }
 
   async update(userId, newData) {
     try {
 
-    console.log("newData", newData);
-    console.log("userId", userId);
-    const user = await User.findOne({where: {id: userId}});
-    if(newData.role && user.role !== "ADMIN") return ApiError.internal('У вас нет доступа к изменению роли пользователя.');
+      console.log("newData", newData);
+      console.log("userId", userId);
+      const user = await User.findOne({where: {id: userId}});
+      if(newData.role && user.role !== "ADMIN") return ApiError.internal('У вас нет доступа к изменению роли пользователя.');
 
-    await User.update({...newData}, {where: {id:userId}})
-    const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone)
-    return  {token, id:user.id, email:user.email, role:user.role, firstName:user.firstName, lastName:user.lastName, phone: user.phone};
+      await User.update({...newData}, {where: {id:userId}})
+      const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone)
+      return  {token, id:user.id, email:user.email, role:user.role, firstName:user.firstName, lastName:user.lastName, phone: user.phone};
 
     }catch (e){
       console.log(e);
-      return {status: "user not found"};
+      return {status: "200", massage: "user not found"};
     }
   }
 

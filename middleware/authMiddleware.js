@@ -1,3 +1,4 @@
+const ApiError = require('../error/ApiError');
 const jwt = require('jsonwebtoken')
 
 module.exports = function (req, res, next) {
@@ -7,15 +8,14 @@ module.exports = function (req, res, next) {
   try {
     const token = req.headers.authorization.split(' ')[1]; //Bearer fvbdfgdfgdf
     if (!token) {
-      return res.status(401).json({message: "Не авторизован"})
+      return res.status(401).json({message: "you are not logged in"})
     }
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    console.log(decoded);
     req.user = decoded;
-    console.log('decoded------>', decoded)
     next();
   } catch (e) {
-    res.status(401).json({message:err.message})
+    console.log(e);
+    res.status(200).json({message:"authorization failed"})
   }
 };
 
