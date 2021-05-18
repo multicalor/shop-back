@@ -1,19 +1,29 @@
 const uuid = require('uuid')
 const path = require('path')
-const {Product, ProductInfo} = require('../models/models')
-const ProductService = require('../services/productService')
+const {Product, ProductInfo, User, BasketProduct, Basket} = require('../models/models')
 const ApiError = require('../error/ApiError')
 
-class basketService {
-  async create(req, res) {
+class BasketService {
+  async create(productIds, userId) {
+    productIds = JSON.parse(productIds)
+    const basket = await Basket.findOne({where: {userId}});
+    let basketProducts = [];
 
+      for (const productId of productIds) {
+        basketProducts.push(await BasketProduct.create({productId, basketId:basket.id}))// = await BasketProduct.create({productId, userId})
+
+      // } else {
+      //     basketProducts = await BasketProduct.create({productIds, userId});
+      // }
+
+      // return basketProducts;
+    }
   }
-
   async getAll(req, res) {
 
   }
 
-  async add(req, res, next) {
+  async addOne(req, res, next) {
     try {
 
     } catch (e) {
@@ -22,7 +32,7 @@ class basketService {
 
   }
   //todo transfer to sevice
-  async delete(req, res) {
+  async deleteOne(req, res) {
 
   }
 
@@ -32,4 +42,4 @@ class basketService {
 }
 
 
-module.exports = new basketService();
+module.exports = new BasketService();

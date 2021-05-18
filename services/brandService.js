@@ -8,7 +8,10 @@ class BrandService {
 
   async getAll() {
     const brands = await Brand.findAll();
-    return brands
+    const brandsInfos = brands.map(brand => {
+      return {"name":brand.name, "id": brand.id};
+    })
+    return brandsInfos
   }
   //todo Delete brand from ADMIN role
   // async delteOne(req, res){

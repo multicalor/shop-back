@@ -9,10 +9,10 @@ class TypeService {
   async getAll() {
     const types = await Type.findAll();
     console.log(types);
-    const answer = types.map(type => {
+    const typesInfo = types.map(type => {
       return {"name":type.name, "id": type.id};
     })
-    return answer;
+    return typesInfo;
   }
   //todo Delete brand from ADMIN role
   async delteOne(req, res){

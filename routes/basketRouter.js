@@ -2,15 +2,12 @@ const Router = require('express');
 const router = new Router();
 const basketController = require('../controllers/basketController')
 const checkRole = require('../middleware/checkRoleMiddleware')
+const authMiddleware = require('../middleware/authMiddleware')
 
-router.delete('/:id', basketController.create);
-router.delete('/:id', basketController.getAll);
-router.post('/basket', basketController.add);
-router.put('/basket', basketController.delete);
-router.delete('/:id', basketController.buy);
-
-
-
-
+router.put('/', authMiddleware, basketController.create);
+router.get('/', basketController.getAll);
+router.post('/', basketController.addOne);
+router.delete('/', authMiddleware, basketController.deleteOne);
+// router.delete('/', basketController.buy);
 
 module.exports = router;

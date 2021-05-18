@@ -7,7 +7,7 @@ class productController {
     try {
       const productData = req.body;
       console.log(productData);
-      process.exit();
+      // process.exit();
 
       let {img} = req.files;
       let product = await ProductService.create(productData, img);

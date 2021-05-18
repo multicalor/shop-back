@@ -16,34 +16,41 @@ class ProductService {
 
       if (info) {
         info = JSON.parse(info);
-        info.forEach(i =>
-            ProductInfo.create({
-              title:i.title,
-              description: i.description,
-              productId: product.id
-            })
+
+        info.forEach(i => {
+              console.log(i.title)
+              ProductInfo.create({
+                title: i.title,
+                description: i.description,
+                productId: product.id
+              })
+            }
         )
       }
       return product;
   }
-  //todo
+  //todo test limit end page
   async getAll(productData) {
     let {brandId, typeId, limit, page} = productData;
     page = page || 1;
-    limit = limit || 9;
+    limit = limit || 10;
     let offset = page * limit - limit;
     let product;
     if(!brandId && !typeId) {
-      product = await Product.findAndCountAll({limit, offset})
+      product = await Product.findAndCountAll({limit, offset,
+        include: [{model:ProductInfo, as: 'info'}]})
     }
     if(brandId && !typeId) {
-      product = await Product.findAndCountAll({where:{brandId}, limit, offset})
+      product = await Product.findAndCountAll({where:{brandId}, limit, offset,
+        include: [{model:ProductInfo, as: 'info'}]})
     }
     if(!brandId && typeId) {
-      product = await Product.findAndCountAll({where:{typeId}, limit, offset})
+      product = await Product.findAndCountAll({where:{typeId}, limit, offset,
+        include: [{model:ProductInfo, as: 'info'}]})
     }
     if(brandId && typeId) {
-      product = await Product.findAndCountAll({where:{typeId, brandId}, limit, offset})
+      product = await Product.findAndCountAll({where:{typeId, brandId}, limit, offset,
+        include: [{model:ProductInfo, as: 'info'}]})
     }
     return product
   }

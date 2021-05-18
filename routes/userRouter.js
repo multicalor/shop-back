@@ -8,7 +8,7 @@ const checkRole = require('../middleware/checkRoleMiddleware')
 router.put('/registration',validationMiddleware,  userController.registration)//
 router.post('/update', validationMiddleware, authMiddleware, userController.update)
 router.get('/auth', authMiddleware, userController.check)
-router.get('/login', userController.login)//validationMiddleware,
+router.post('/login', userController.login)//validationMiddleware,
 
 //todo ADMIN functions
 // router.put('/admin', checkRole('ADMIN'),  userController.changeRole);

@@ -7,24 +7,8 @@ const jwt = require('jsonwebtoken')
 
 class ProductService {
   //todo
-  async create(productData, img) {
-    let {name, price, brandId, typeId, info} = productData;
-    let fileName = uuid.v4()+".jpg";
-    img.mv(path.resolve(__dirname, '..', 'static', fileName));
+  async buy(basketId, productIdList) {
 
-    const product = await Product.create({name, price, brandId, typeId, img: fileName});
-
-    if (info) {
-      info = JSON.parse(info);
-      info.forEach(i =>
-          ProductInfo.create({
-            title:i.title,
-            description: i.description,
-            productId: product.id
-          })
-      )
-    }
-    return product;
   }
   //todo
   async getAll(productData) {
