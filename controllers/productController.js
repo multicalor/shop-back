@@ -30,6 +30,10 @@ class productController {
     return res.json(product);
   }
 
+  async addToBasket(req, res) {
+
+  }
+
   async update(req, res) {
     // const {id} = req.params;
     const newProductData = req.body;

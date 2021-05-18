@@ -1,15 +1,22 @@
 const userService = require('../services/userService')
 const ApiError = require('../error/ApiError');
+const validate = require('../utils/validation');
 
 class UserController {
   async registration(req, res) {
-    const answer = await userService.registration(req.body)
-    return res.json(answer);
+    try {
+      const answer = await userService.registration(req.body)
+      return res.json(answer);
+    } catch (e) {
+      res.status(200).json({message: e.status})
+    }
   }
 
   async login(req, res) {
+    console.log(req.query);
+    console.log(req.body);
     const userInfo = await userService.login(req.body);
-    return res.json({userInfo});
+    return res.json(userInfo);
   }
 
   async check(req, res) {
@@ -19,16 +26,16 @@ class UserController {
   }
 
   async update(req, res) {
-    let { newData } = req.body;
+    let newData = req.body;
     let { user } = req;
     let newUserData;
     try {
-    newUserData = await userService.update(user.id, newData);
+      newUserData = await userService.update(user.id, newData);
 
-    res.json({newUserData})
+      res.json(newUserData)
     }catch (e){
       console.log(e);
-      res.status(500).json({message: newUserData.status})
+      res.status(500).json({message: newUserData })//newUserData.status
     }
   }
 

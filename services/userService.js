@@ -1,7 +1,9 @@
 const ApiError = require('../error/ApiError');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {User, Basket} = require('../models/models')
+const {User, Basket} = require('../models/models');
+const validate = require('../utils/validation');
+
 
 
 const generateJwt = (id, email, role, firstName, phone) => {
@@ -16,12 +18,12 @@ class userService {
     const {email, password, role, firstName, phone} = userData;
 
     if (!email || !password) {
-      return ApiError.badRequest('Некоректный email или password');
+      return ApiError.ifBadDataRequest('incorrect email or password');
     }
 
     const condidate = await User.findOne({where: {email}});
     if (condidate) {
-      return ApiError.ifBadDataReauest('User with this email already exists.');
+      return ApiError.ifBadDataRequest('user with this email already exists');
     }
     const hashPassword = await bcrypt.hash(password, 5);
     const user = await User.create({email, role, firstName, phone, password: hashPassword});
@@ -34,11 +36,11 @@ class userService {
     const {email, password} = userData;
     const user = await User.findOne({where: {email}});
     if (!user) {
-      return ApiError.internal('Пользователь с таким имененм не найден');
+      return ApiError.ifBadDataRequest('user with this name was not found');
     }
     let comparePassword = bcrypt.compareSync(password, user.password);
     if (!comparePassword) {
-      return ApiError.internal('Указан неверный пароль');
+      return ApiError.ifBadDataRequest('the password is incorrect');
     }
     const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone);
     return {token, id:user.id, email:user.email, role:user.role, firstName:user.firstName, lastName:user.lastName, phone: user.phone};
@@ -56,15 +58,13 @@ class userService {
 
   async update(userId, newData) {
     try {
-
       console.log("newData", newData);
       console.log("userId", userId);
       const user = await User.findOne({where: {id: userId}});
-      if(newData.role && user.role !== "ADMIN") return ApiError.internal('У вас нет доступа к изменению роли пользователя.');
-
-      await User.update({...newData}, {where: {id:userId}})
-      const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone)
-      return  {token, id:user.id, email:user.email, role:user.role, firstName:user.firstName, lastName:user.lastName, phone: user.phone};
+      if(newData.role && user.role !== "ADMIN") return ApiError.internal('you do not have access to change the user\'s role');
+      await User.update({...newData}, {where: {id:userId}});
+      const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone);
+      return  {token, id:newData.id, email:newData.email, role:newData.role, firstName:newData.firstName, lastName:newData.lastName, phone: newData.phone};
 
     }catch (e){
       console.log(e);
