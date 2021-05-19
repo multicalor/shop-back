@@ -21,9 +21,10 @@ class BasketController {
       const basket = await basketService.update(productIds, id);
       return res.json(basket);
   }
-
-  async buy(req, res) {
-
+//todo complete function
+  async removeOne(req, res) {
+    const { productIds }  = req.body;
+    const { id } = req.user;
   }
 }
 

@@ -89,7 +89,7 @@ class ProductService {
 // todo update product
   async update(productId) {
 
-    const product = await Product.findOne(
+    const product = await Product.update(
         {
           where: {id:productId},
           include: [{model:ProductInfo, as: 'info'}]
