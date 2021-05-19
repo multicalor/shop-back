@@ -13,10 +13,12 @@ class BasketController {
   }
 
   async getAll(req, res) {
+    const { id } = req.user;
     return res.json();
   }
 
   async addOne(req, res, next) {
+    const { id } = req.user;
     console.log(req.body);
     const {productId, userId} = req.body;
     let basket;

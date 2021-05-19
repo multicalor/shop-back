@@ -5,9 +5,8 @@ const checkRole = require('../middleware/checkRoleMiddleware')
 const authMiddleware = require('../middleware/authMiddleware')
 
 router.put('/', authMiddleware, basketController.create);
-router.get('/', basketController.getAll);
+router.get('/',authMiddleware, basketController.getAll);
 router.post('/', basketController.addOne);
-router.delete('/', authMiddleware, basketController.deleteOne);
-// router.delete('/', basketController.buy);
+router.delete('/',authMiddleware, authMiddleware, basketController.deleteOne);
 
 module.exports = router;

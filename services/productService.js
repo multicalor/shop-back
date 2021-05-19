@@ -34,25 +34,41 @@ class ProductService {
     let {brandId, typeId, limit, page} = productData;
     page = page || 1;
     limit = limit || 10;
-    let offset = page * limit - limit;
-    let product;
-    if(!brandId && !typeId) {
-      product = await Product.findAndCountAll({limit, offset,
-        include: [{model:ProductInfo, as: 'info'}]})
+    let offset = page * limit - limit, products;
+    if (!brandId && !typeId) {
+      products = await Product.findAndCountAll({
+        limit, offset,
+        include: [{model: ProductInfo, as: 'info'}]
+      })
     }
-    if(brandId && !typeId) {
-      product = await Product.findAndCountAll({where:{brandId}, limit, offset,
-        include: [{model:ProductInfo, as: 'info'}]})
+    if (brandId && !typeId) {
+      products = await Product.findAndCountAll({
+        where: {brandId}, limit, offset,
+        include: [{model: ProductInfo, as: 'info'}]
+      })
     }
-    if(!brandId && typeId) {
-      product = await Product.findAndCountAll({where:{typeId}, limit, offset,
-        include: [{model:ProductInfo, as: 'info'}]})
+    if (!brandId && typeId) {
+      products = await Product.findAndCountAll({
+        where: {typeId}, limit, offset,
+        include: [{model: ProductInfo, as: 'info'}]
+      })
     }
-    if(brandId && typeId) {
-      product = await Product.findAndCountAll({where:{typeId, brandId}, limit, offset,
-        include: [{model:ProductInfo, as: 'info'}]})
+    if (brandId && typeId) {
+      products = await Product.findAndCountAll({
+        where: {typeId, brandId}, limit, offset,
+        include: [{model: ProductInfo, as: 'info'}]
+      })
     }
-    return product
+
+    let productInfos = products.rows.map(product => {
+      let { name, id, price, img, info, typeId, brandId } = product.dataValues;
+      info = product.info.map( i => {
+        const {description} = i.dataValues;
+        return description;
+      });
+      return { name, id, price, img, info, typeId, brandId };
+  })
+    return productInfos
   }
   //todo
   async getOne(productId) {
@@ -63,9 +79,14 @@ class ProductService {
           include: [{model:ProductInfo, as: 'info'}]
         },
     )
-    return product;
+    let { name, id, price, img, info, typeId, brandId } = product
+    info = info.map( i => {
+      const {title, description} = i;
+      return {title, description};
+    });
+    return { name, id, price, img, info, typeId, brandId };
   }
-
+// todo update product
   async update(productId) {
 
     const product = await Product.findOne(
@@ -74,7 +95,8 @@ class ProductService {
           include: [{model:ProductInfo, as: 'info'}]
         },
     )
-    return product;
+    console.log(product)
+
   }
 
   async addProductToBasket (productId){
