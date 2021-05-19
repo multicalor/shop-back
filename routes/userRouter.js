@@ -1,11 +1,24 @@
 const Router = require('express');
+const { body, validationResult } = require('express-validator');
 const router = new Router();
 const userController = require('../controllers/userController')
 const authMiddleware = require('../middleware/authMiddleware')
 const validationMiddleware = require('../middleware/validationMiddleware')
 const checkRole = require('../middleware/checkRoleMiddleware')
 
-router.put('/registration',validationMiddleware,  userController.registration)//
+// router.put('/registration',validationMiddleware,  userController.registration)//
+router.put('/registration',
+    body('email').isEmail(),
+    body('password').isLength({ min: 5 }),
+    (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const { value, msg } = errors.array()[0];
+        return res.status(200).json({errors: { value, msg }});
+      }
+      userController.registration(req, res)
+    }
+    )
 router.post('/update', validationMiddleware, authMiddleware, userController.update)
 router.get('/auth', authMiddleware, userController.check)
 router.post('/login', userController.login)//validationMiddleware,

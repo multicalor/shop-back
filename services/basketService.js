@@ -1,41 +1,52 @@
-const uuid = require('uuid')
-const path = require('path')
-const {Product, ProductInfo, User, BasketProduct, Basket} = require('../models/models')
-const ApiError = require('../error/ApiError')
-
+const {Product, ProductInfo, BasketProduct, Basket} = require('../models/models')
 class BasketService {
-  async create(productIds, userId) {
-    productIds = JSON.parse(productIds)
+
+  async create(productIds, userId) { // productIds[], userId int
     const basket = await Basket.findOne({where: {userId}});
     let basketProducts = [];
-
       for (const productId of productIds) {
-        basketProducts.push(await BasketProduct.create({productId, basketId:basket.id}))// = await BasketProduct.create({productId, userId})
+        basketProducts.push( await BasketProduct.create({productId, basketId:basket.id}))// = await BasketProduct.create({productId, userId})
+      }
+    return basketProducts;
+  }
 
-      // } else {
-      //     basketProducts = await BasketProduct.create({productIds, userId});
-      // }
+  async getAll(userId) {
+    let basketProducts = await BasketProduct.findAll(
+        {where: {basketId: userId}});
 
-      // return basketProducts;
+    const productsIds = basketProducts.map(product => {
+       return product.productId
+    })
+
+    let productsInfo = [];
+    for (let prodId of productsIds){
+      let { name, id, price, img, info, typeId, brandId } = (await Product.findOne(
+          {
+            where: {id: prodId},
+            include: [{model:ProductInfo, as: 'info'}]
+          },
+      ))
+      info = info.map( i => {
+        const {title, description} = i;
+        return {title, description};
+      });
+      productsInfo.push({ name, id, price, img, info, typeId, brandId });
     }
-  }
-  async getAll(req, res) {
-
+    return productsInfo;
   }
 
-  async addOne(req, res, next) {
-    try {
-
-    } catch (e) {
-      next(ApiError.badRequest(e.message));
+  async update(productIds, userId) {
+    await BasketProduct.destroy(
+        {where: {basketId: userId}});
+    const basket = await Basket.findOne({where: {userId}});
+    let basketProducts = [];
+    for (const productId of productIds) {
+      basketProducts.push( await BasketProduct.create({productId, basketId:basket.id}))// = await BasketProduct.create({productId, userId})
     }
-
+    return basketProducts;
   }
+
   //todo transfer to sevice
-  async deleteOne(req, res) {
-
-  }
-
   async buy(req, res) {
 
   }
