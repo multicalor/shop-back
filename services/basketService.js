@@ -1,21 +1,41 @@
 const {Product, ProductInfo, BasketProduct, Basket} = require('../models/models')
+const sequelize = require('../db');
+
 class BasketService {
 
-  async create(productIds, userId) { // productIds[], userId int
+  async create(productsSet, userId) { // productIds[], userId int
     const basket = await Basket.findOne({where: {userId}});
+    let productsId = [];
     let basketProducts = [];
-      for (const productId of productIds) {
-        basketProducts.push( await BasketProduct.create({productId, basketId:basket.id}))// = await BasketProduct.create({productId, userId})
+      for (const product of productsSet) {
+        BasketProduct.create({productId: product.productId, quantity:product.quantity, basketId:basket.id});
+        productsId.push(product.productId)
+
       }
+    basketProducts = await Product.findAll({where: {id: productsId}})
     return basketProducts;
   }
   //todo implement return item id of product basket
   async getAll(userId) {
+    let basket = await Basket.findOne(
+        {where: {userId}});
+    const basketId = basket.id;//[0].dataValues.
     let basketProducts = await BasketProduct.findAll(
-        {where: {basketId: userId}});
+        {
+          where: {basketId}
+        },
+  );
+
+    // attributes: [
+    //   'id',
+    //   'quantity',
+    //   // 'name ',
+    //   [sequelize.fn('SUM', sequelize.col('ammount')), 'totalAmount'],
+    // ],
+    // console.log(basketProducts)
 
     const productsIds = basketProducts.map(product => {
-      console.log('------>', product.dataValues.id);
+      // console.log('------>', product.dataValues);
        return {productId: product.productId, id:product.id }
     })
 
@@ -23,8 +43,14 @@ class BasketService {
     for (let prodId of productsIds){
       let { name, id, price, img, info, typeId, brandId } = (await Product.findOne(
           {
+            attributes: [
+              'id',
+              'name',
+              'price',
+              [sequelize.fn('SUM', sequelize.col('price')), 'totalAmount']
+              ],
             where: {id: prodId.productId},
-            include: [{model:ProductInfo, as: 'info'}]
+            // include: [{model:ProductInfo, as: 'info'}]
           },
       ))
       info = info.map( i => {
@@ -53,9 +79,9 @@ class BasketService {
     return  await BasketProduct.create({productId, basketId:basket.id})// = await BasketProduct.create({productId, userId})
   }
 
-  async removeOne(userId, productBasketId) { // productIds[], userId int
+  async removeOne(basketItemId, userId) { // productIds[], userId int
     const basket = await Basket.findOne({where: {userId}});
-    return  await BasketProduct.destroy({ id:productBasketId})// = await BasketProduct.create({productId, userId})
+    return  await BasketProduct.destroy({ id:basketItemId})// = await BasketProduct.create({productId, userId})
   }
 
 }

@@ -1,9 +1,9 @@
 const uuid = require('uuid')
 const path = require('path')
-const {Product, ProductInfo, BasketProduct, Basket} = require('../models/models')
+const {Product, ProductInfo, BasketProduct, Basket, Brand, Type} = require('../models/models')
 const ApiError = require('../error/ApiError')
 
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 
 class ProductService {
   //todo
@@ -33,12 +33,14 @@ class ProductService {
   async getAll(productData) {
     let {brandId, typeId, limit, page} = productData;
     page = page || 1;
-    limit = limit || 10;
-    let offset = page * limit - limit, products;
+    limit = limit || 50;
+    let offset = page * limit - limit, products, brand, type;
+
     if (!brandId && !typeId) {
-      products = await Product.findAndCountAll({
+      products = await Product.findAndCountAll({ //[{},{brandId}]------------------------------------------------------------
         limit, offset,
-        include: [{model: ProductInfo, as: 'info'}]
+        include: [{model: ProductInfo, as: 'info'}, {model: Type }, {model: Brand}]//, {model: Type}as: 'type'
+
       })
     }
     if (brandId && !typeId) {
@@ -58,17 +60,23 @@ class ProductService {
         where: {typeId, brandId}, limit, offset,
         include: [{model: ProductInfo, as: 'info'}]
       })
+      let brand = await Brand.findOne(
+          {
+            where: {id:product.dataValues.brandId},
+          },
+      );
+      products.dataValues.brand = brand.name
     }
 
-    let productInfos = products.rows.map(product => {
-      let { name, id, price, img, info, typeId, brandId } = product.dataValues;
+    let productsInfos = products.rows.map(product => {
+      let { name, id, price, img, info, typeId, brandId, brand, type} = product.dataValues; //
       info = product.info.map( i => {
         const {description} = i.dataValues;
         return description;
       });
-      return { name, id, price, img, info, typeId, brandId };
+      return { name, id, price, img, info, typeId, brandId, brand: brand.name, type: type.name };
   })
-    return productInfos
+    return productsInfos
   }
   //todo
   async getOne(productId) {
@@ -76,15 +84,17 @@ class ProductService {
     const product = await Product.findOne(
         {
           where: {id:productId},
-          include: [{model:ProductInfo, as: 'info'}]
+          include: [{model:ProductInfo, as: 'info'}, {model: Type }, {model: Brand}]//
         },
     )
-    let { name, id, price, img, info, typeId, brandId } = product
+    console.log(product)
+    let { name, id, description, price, img, info, typeId, brandId, brand, type} = product.dataValues;
+
     info = info.map( i => {
       const {title, description} = i;
       return {title, description};
     });
-    return { name, id, price, img, info, typeId, brandId };
+    return { name, id, description, price, img, info, typeId, brandId, brand: brand.name, type: type.name };
   }
 // todo update product
   async update(productId) {

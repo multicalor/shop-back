@@ -15,13 +15,21 @@ const Basket = sequelize.define('basket',{
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
 })
 
+const Order = sequelize.define('order',{
+  id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+  coast:{type: DataTypes.DECIMAL(10, 2) , allowNull:false},
+  status:{type: DataTypes.STRING, allowNull: false },
+})
+
 const BasketProduct = sequelize.define('basket_product',{
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+  quantity:{type: DataTypes.DECIMAL(10, 2) , allowNull:false}
 })
 
 const Product = sequelize.define('product',{
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
   name:{type: DataTypes.STRING, unique:true, allowNull:false},
+  description:{type: DataTypes.TEXT,  allowNull:true},
   price:{type: DataTypes.DECIMAL(10, 2) , allowNull:false},
   rating:{type: DataTypes.INTEGER, defaultValue: 0},
   img:{type: DataTypes.STRING, allowNull:false},
@@ -51,8 +59,12 @@ const ProductInfo = sequelize.define('product_info',{
 const TypeBrand = sequelize.define('type_brand', {
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
 })
-
+//todo write relations
 const TypeSubType = sequelize.define('type_sub_type', {
+  id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+})
+//todo write relations
+const OrderBasket = sequelize.define('order_basket', {
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
 })
 
