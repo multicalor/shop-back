@@ -1,2 +1,2 @@
-# shope-back
-Back end from simple shope
+# shop-back
+Back end from simple shop
