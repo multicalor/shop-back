@@ -7,6 +7,8 @@ const validationMiddleware = require('../middleware/validationMiddleware')
 const checkRole = require('../middleware/checkRoleMiddleware')
 
 // router.put('/registration',validationMiddleware,  userController.registration)//
+router.get('/',  authMiddleware, userController.getUser);
+//todo remove to middlver
 router.put('/registration',
     body('email').isEmail(),
     body('password').isLength({ min: 5 }),
@@ -17,6 +19,7 @@ router.put('/registration',
         return res.status(200).json({errors: { value, msg }});
       }
       userController.registration(req, res)
+      console.log("test")
     }
     )
 router.post('/update', validationMiddleware, authMiddleware, userController.update)

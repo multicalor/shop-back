@@ -1,7 +1,7 @@
 const ApiError = require('../error/ApiError');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {User, Basket} = require('../models/models');
+const {User, Basket, BasketProduct, Product} = require('../models/models');
 const validate = require('../utils/validation');
 
 
@@ -21,13 +21,13 @@ class userService {
       return ApiError.ifBadDataRequest('incorrect email or password');
     }
 
-    const condidate = await User.findOne({where: {email}});
-    if (condidate) {
+    const candidate = await User.findOne({where: {email}});
+    if (candidate) {
       return ApiError.ifBadDataRequest('user with this email already exists');
     }
     const hashPassword = await bcrypt.hash(password, 5);
     const user = await User.create({email, role, firstName, phone, password: hashPassword});
-    const basket = await Basket.create({userId: user.id});
+    await Basket.create({userId: user.id});
     const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone);
     return {token};
   }
@@ -45,11 +45,37 @@ class userService {
     const token = generateJwt(user.id, user.email, user.role, user.firstName, user.phone);
     return {token, id:user.id, email:user.email, role:user.role, firstName:user.firstName, lastName:user.lastName, phone: user.phone};
   }
+  //todo edd to returnn user basket
+  async getUser(userData) {
+    try {
+      const token = generateJwt(userData.id, userData.email, userData.role, userData.firstName, userData.phone)
+      const user = await User.findOne(
+          {where: {id:userData.id}, attributes:["id", "email", "role", "firstName", "lastName", "phone"]}//
+      );
+      const basket = await Basket.findOne(
+          {
+            attributes:['id'],
+            where: {userId:userData.id},
+            include: [{model:BasketProduct,
+              include: [{model: Product,
+                attributes:["name", "price", "id"]
+              }],
+              attributes:["id", "quantity"],
+            }]});
+
+      console.log("user",user);
+      return {token, user, basket};
+    } catch (e) {
+      console.log(e)
+      return {status: "200", massage: "authorization failed"};
+    }
+  }
 
   async check(userData) {
     try {
-      const answer = generateJwt(userData.id, userData.email, userData.role, userData.firstName, userData.phone)
-      return answer;
+      const token = generateJwt(userData.id, userData.email, userData.role, userData.firstName, userData.phone)
+
+      return token;
     } catch (e) {
       console.log(e)
       return {status: "200", massage: "authorization failed"};

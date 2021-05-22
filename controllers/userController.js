@@ -3,12 +3,18 @@ const ApiError = require('../error/ApiError');
 const validate = require('../utils/validation');
 
 class UserController {
+  async getUser(req, res) {
+    let {user} = req;
+    const userData = await userService.getUser(user);
+    res.json(userData)
+  }
+
   async registration(req, res) {
     try {
       const answer = await userService.registration(req.body)
       return res.json(answer);
     } catch (e) {
-      res.status(200).json({message: e.status})
+      return res.status(200).json({message: e.status})
     }
   }
 
@@ -22,7 +28,7 @@ class UserController {
   async check(req, res) {
       let {user} = req;
       const token = await userService.check(user);
-      res.json({token})
+      return res.json({token})
   }
 
   async update(req, res) {

@@ -36,6 +36,13 @@ class BasketController {
     const basket = await basketService.removeOne(basketItemId, id);
     return res.json(basket);
   }
+
+  async updateOne(req, res) {
+    const { oldProductId, newProduct }  = req.body;
+    const { id } = req.user;
+    const basket = await basketService.updateOne(oldProductId, newProduct , id);
+    return res.json(basket);
+  }
 }
 
 
