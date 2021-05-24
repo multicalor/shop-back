@@ -19,11 +19,12 @@ class BasketService {
   async getAll(userId) {
     let basket = await Basket.findOne(
         {
-          attributes:['id'],
+
           where: {userId},
+          attributes:[],//'id'
           include: [{model:BasketProduct,
             include: [{model: Product,
-              attributes:["name", "price", "id"]
+              attributes:["name", "price", "id", "img"]
             }],
             attributes:["id", "quantity"],
           }]});
@@ -82,26 +83,49 @@ class BasketService {
   }
 
   async updateOne(oldProductId, newProduct , userId) {
-    const product = await BasketProduct.findOne(
+    let product = await BasketProduct.findOne(
         {
           where: {id: oldProductId},
         });
-    await product.update({productId:newProduct.productId,quantity:newProduct.quantity})
+    product = await product.update({productId:newProduct.productId,quantity:newProduct.quantity})
 
     return product;
   }
 
-  async addOne(productId, userId) { // productIds[], userId int
+  async addOne(productId, quantity, userId) { // productIds[], userId int
+
     const { id } = await Basket.findOne(
         {
-        where: {userId},attributes:['id'],})//
-    // const basket = await Basket.findOne({where: {userId}});
-    return  await BasketProduct.create({productId, basketId:id})// = await BasketProduct.create({productId, userId})
+          where: {userId},attributes:['id'],
+        })
+    try{
+      const product = await BasketProduct.findOne(
+          {
+            where: {basketId:id, productId: productId}
+          });
+
+      if (product){
+
+        return await product.update( {quantity})
+      }
+    }catch(e) {
+      return res.status(403).json({message: e.message })
+
+        }
+     await BasketProduct.create({productId, quantity, basketId:id})
+    return true;
+
   }
 
-  async removeOne(basketItemId, userId) { // productIds[], userId int
+  async removeOne(productId, userId) { // productIds[], userId int
     const basket = await Basket.findOne({where: {userId}});
-    return  await BasketProduct.destroy({ id:basketItemId})// = await BasketProduct.create({productId, userId})
+    return  await BasketProduct.destroy({where: {productId}} )// = await BasketProduct.create({productId, userId})
+  }
+
+  async buy(userId) { // productIds[], userId int
+    const basket = await Basket.findOne({where: {userId}, attributes:["id"]});
+    return console.log("basket", basket)
+    // return  await BasketProduct.destroy({ id:basketItemId})// = await BasketProduct.create({productId, userId})
   }
 
 }

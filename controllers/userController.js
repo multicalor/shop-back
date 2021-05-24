@@ -4,9 +4,10 @@ const validate = require('../utils/validation');
 
 class UserController {
   async getUser(req, res) {
-    let {user} = req;
-    const userData = await userService.getUser(user);
-    res.json(userData)
+    let {userId} = req.id;
+    console.log(userId);
+    const userData = await userService.getUser(userId);
+    return res.json(userData)
   }
 
   async registration(req, res) {
@@ -41,7 +42,7 @@ class UserController {
       res.json(newUserData)
     }catch (e){
       console.log(e);
-      res.status(500).json({message: newUserData })//newUserData.status
+      return res.status(500).json({message: newUserData })//newUserData.status
     }
   }
 
@@ -50,14 +51,14 @@ class UserController {
     let { newData } = req.body;
     let { user } = req;
     const newUserData = await userService.update(user.id, newData);
-    res.json({newUserData})
+    return res.json({newUserData})
   }
 
   async getAll(req, res) {
     let { newData } = req.body;
     let { user } = req;
     const newUserData = await userService.update(user.id, newData);
-    res.json({newUserData})
+    return res.json({newUserData})
   }
 
   async delete(req, res) {

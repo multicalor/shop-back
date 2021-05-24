@@ -18,12 +18,12 @@ const Basket = sequelize.define('basket',{
 const Order = sequelize.define('order',{
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
   coast:{type: DataTypes.DECIMAL(10, 2) , allowNull:false},
-  status:{type: DataTypes.STRING, allowNull: false },
+  status:{type: DataTypes.STRING, defaultValue: "CONFIRMED" },
 })
 
 const BasketProduct = sequelize.define('basket_product',{
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-  quantity:{type: DataTypes.DECIMAL(10, 2) , allowNull:false}
+  quantity:{type: DataTypes.INTEGER , allowNull:false},
 })
 
 const Product = sequelize.define('product',{
@@ -34,6 +34,7 @@ const Product = sequelize.define('product',{
   rating:{type: DataTypes.INTEGER, defaultValue: 0},
   img:{type: DataTypes.STRING, allowNull:false},
 })
+
 
 const Type = sequelize.define('type',{
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
@@ -64,8 +65,10 @@ const TypeSubType = sequelize.define('type_sub_type', {
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
 })
 //todo write relations
-const OrderBasket = sequelize.define('order_basket', {
+const OrderProducts = sequelize.define('order_products', {
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+  coast:{type: DataTypes.DECIMAL(10, 2) , allowNull:false},
+  status:{type: DataTypes.INTEGER, defaultValue: 0},
 })
 
 User.hasOne(Basket);
@@ -95,8 +98,12 @@ ProductInfo.belongsTo(Product);
 Type.belongsToMany(Brand, {through: TypeBrand});
 Brand.belongsToMany(Type, {through: TypeBrand});
 
-// Brand.belongsToMany(Type, {through: TypeBrand});
+User.hasMany(Order);
+Order.belongsTo(User);
+
+Order.belongsToMany(Product, {through: OrderProducts});
+
 
 module.exports = {
-  User, Basket, BasketProduct, Product, Type, Brand, Rating, ProductInfo, TypeBrand
+  User, Basket, BasketProduct, Product, Type, Brand, Rating, ProductInfo, TypeBrand, Order, OrderProducts
 }

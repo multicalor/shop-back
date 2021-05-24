@@ -1,17 +1,13 @@
-const {Product, ProductInfo} = require('../models/models')
-const ProductService = require('../services/productService')
+const {Product, ProductInfo, Order} = require('../models/models')
+const OrderService = require('../services/orderService')
 const ApiError = require('../error/ApiError')
 
 class productController {
-  async create(req, res, next) {
+  async buy(req, res, next) {
     try {
-      const productData = req.body;
-      console.log(productData);
-      process.exit();
-
-      let {img} = req.files;
-      let product = await ProductService.create(productData, img);
-      return res.json(product);
+      const {id} = req.user;
+      let order = await OrderService.buy(id);
+      return res.json(order);
     } catch (e) {
       next(ApiError.badRequest(e.message));
     }
@@ -19,20 +15,21 @@ class productController {
   }
 
   async getAll(req, res) {
-    let product = await ProductService.getAll(req.query);
-    return res.json(product);
+    const { id } = req.user;
+
+    console.log("req.user", id)
+
+    let products = await OrderService.getAll(id);
+    return res.json(products);
   }
   //todo transfer to sevice
   async getOne(req, res) {
     const {id} = req.params;
     console.log(id)
-    const product = await ProductService.getOne(id);
+    const product = await OrderService.getOne(id);
     return res.json(product);
   }
 
-  async addToBasket(req, res) {
-
-  }
 
   async update(req, res) {
     // const {id} = req.params;
@@ -40,7 +37,7 @@ class productController {
 
   }
   //todo transfer to sevice
-  async addToBasketProducts(req, res) {
+  async status(req, res) {
     // const {id} = req.params;
     // const {id} = req.params;
     // const product ;

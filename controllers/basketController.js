@@ -22,27 +22,27 @@ class BasketController {
   }
 
   async addOne(req, res) {
-    const { productId }  = req.body;
+    const { productId, quantity }  = req.body;
     const { id } = req.user;
-    const basket = await basketService.addOne(productId, id);
+    const basket = await basketService.addOne(productId,quantity, id);
     return res.json(basket);
   }
 
 
 //todo complete function
   async removeOne(req, res) {
-    const { basketItemId }  = req.body;
+    const { productId }  = req.body;
     const { id } = req.user;
-    const basket = await basketService.removeOne(basketItemId, id);
+    const basket = await basketService.removeOne(productId, id);
     return res.json(basket);
   }
 
-  async updateOne(req, res) {
-    const { oldProductId, newProduct }  = req.body;
-    const { id } = req.user;
-    const basket = await basketService.updateOne(oldProductId, newProduct , id);
-    return res.json(basket);
-  }
+  // async updateOne(req, res) {
+  //   const { oldProductId, newProduct }  = req.body;
+  //   const { id } = req.user;
+  //   const basket = await basketService.updateOne(oldProductId, newProduct , id);
+  //   return res.json(basket);
+  // }
 }
 
 

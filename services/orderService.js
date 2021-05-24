@@ -1,62 +1,59 @@
 const uuid = require('uuid')
 const path = require('path')
-const {Product, ProductInfo, BasketProduct, Basket} = require('../models/models')
+const {Product, ProductInfo, BasketProduct, Basket, Order, User} = require('../models/models')
 const ApiError = require('../error/ApiError')
 
 const jwt = require('jsonwebtoken')
 
-class ProductService {
+class OrderService {
   //todo
-  async buy(basketId, productIdList) {
+  async buy(userId) {
 
+    const {basket_products} = await Basket.findOne(
+        {
+          where: {userId},
+          attributes:[],//'id'
+          include: [{model:BasketProduct,
+            include: [{model: Product,
+              attributes:["price", "id"]
+            }],
+            attributes:["id", "quantity"],
+          }]});
+
+
+    const order = await OrderProducts.create({userId, coast:100});// attributes:["id"]
+    console.log("order", order)
+    // console.log(basketId.id);
+    // const {id} = basketId;
+    // const products = await BasketProduct.findAll({
+    //   where:{basketId:id},
+    //
+    //   attributes:["id"]
+    // })
+    return  basket_products;
   }
-  //todo
-  async getAll(productData) {
-    let {brandId, typeId, limit, page} = productData;
-    page = page || 1;
-    limit = limit || 9;
-    let offset = page * limit - limit;
-    let product;
-    if(!brandId && !typeId) {
-      product = await Product.findAndCountAll({limit, offset})
-    }
-    if(brandId && !typeId) {
-      product = await Product.findAndCountAll({where:{brandId}, limit, offset})
-    }
-    if(!brandId && typeId) {
-      product = await Product.findAndCountAll({where:{typeId}, limit, offset})
-    }
-    if(brandId && typeId) {
-      product = await Product.findAndCountAll({where:{typeId, brandId}, limit, offset})
-    }
-    return product
+
+  async getAll(id) {
+    return  await User.findOne({
+      attributes:[],//'id'
+      where: {id},
+      include: [{model:Order,
+        include: [{model: Product,
+          attributes:["name", "price", "id"]
+        }],
+         attributes:[]}],
+    })
   }
   //todo
   async getOne(productId) {
-
-    const product = await Product.findOne(
-        {
-          where: {id:productId},
-          include: [{model:ProductInfo, as: 'info'}]
-        },
-    )
-    return product;
   }
 
   async update(productId) {
-
-    const product = await Product.findOne(
-        {
-          where: {id:productId},
-          include: [{model:ProductInfo, as: 'info'}]
-        },
-    )
-    return product;
   }
 
-  async addProductToBasket (productId){
+  async status (productId){
 
   }
 }
 
-module.exports = new ProductService();
+module.exports = new OrderService();
