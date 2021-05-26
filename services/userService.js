@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const {User, Basket, BasketProduct, Product} = require('../models/models');
 const validate = require('../utils/validation');
+const basketService = require('./basketService')
 
 
 
@@ -49,22 +50,22 @@ class userService {
   async getUser(userData) {
     try {
       const token = generateJwt(userData.id, userData.email, userData.role, userData.firstName, userData.phone)
-      const user = await User.findOne(
+      const userInfo = await User.findOne(
           {where: {id:userData.id}, attributes:["id", "email", "role", "firstName", "lastName", "phone"]}//
       );
-      const basket = await Basket.findOne(
-          {
-            attributes:['id'],
-            where: {userId:userData.id},
-            include: [{model:BasketProduct,
-              include: [{model: Product,
-                attributes:["name", "price", "id"]
-              }],
-              attributes:["id", "quantity"],
-            }]});
 
-      console.log("user",user);
-      return {token, user, basket};
+      const {coast, products } = await basketService.getAll(userData.id)
+      // const basket = await Basket.findOne(
+      //     {
+      //       attributes:['id'],
+      //       where: {userId:userData.id},
+      //       include: [{model:BasketProduct,
+      //         include: [{model: Product,
+      //           attributes:["name", "price", "id"]
+      //         }],
+      //         attributes:["id", "quantity"],
+      //       }]});
+      return {token, userInfo, coast, products};
     } catch (e) {
       console.log(e)
       return {status: "200", massage: "authorization failed"};

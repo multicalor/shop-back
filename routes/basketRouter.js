@@ -6,10 +6,10 @@ const authMiddleware = require('../middleware/authMiddleware')
 
 router.post('/', authMiddleware, basketController.create);
 router.get('/',authMiddleware, basketController.getAll);
-router.delete('/', authMiddleware, basketController.removeOne);
+router.post('/del', authMiddleware, basketController.removeOne);
 router.put('/', authMiddleware, basketController.addOne);
+router.patch('/',authMiddleware, basketController.update);
 // router.('/', authMiddleware, basketController.updateOne);
-// router.put('/',authMiddleware, basketController.update);
 
 
 module.exports = router;

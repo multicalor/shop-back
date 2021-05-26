@@ -1,96 +1,78 @@
 const {Product, ProductInfo, BasketProduct, Basket} = require('../models/models')
 const sequelize = require('../db');
+const ApiError = require('../error/ApiError')
+
 
 class BasketService {
+// productIds[], userId int
+//   async create(productsSet, userId) {
+//     console.log("productsSet", productsSet);
+//     const basket = await Basket.findOne({where: {userId}});
+//     let productsId = [];
+//     let basketProducts = [];
+//       for (const product of productsSet) {
+//         BasketProduct.create({productId: product.productId, quantity:product.quantity, basketId:basket.id});
+//         productsId.push(product.productId)
+//
+//       }
+//     basketProducts = await Product.findAll({where: {id: productsId}})
+//     return basketProducts;
+//   }
 
-  async create(productsSet, userId) { // productIds[], userId int
-    const basket = await Basket.findOne({where: {userId}});
-    let productsId = [];
-    let basketProducts = [];
-      for (const product of productsSet) {
-        BasketProduct.create({productId: product.productId, quantity:product.quantity, basketId:basket.id});
-        productsId.push(product.productId)
-
-      }
-    basketProducts = await Product.findAll({where: {id: productsId}})
-    return basketProducts;
-  }
-  //todo implement return item id of product basket
+  //todo : refactor to ORM style check наличие товаров в карзине,
   async getAll(userId) {
-    let basket = await Basket.findOne(
+    let { basket_products } = await Basket.findOne(
         {
-
           where: {userId},
-          attributes:[],//'id'
+          group:["basket.id"],
+          attributes:['id'],//'id'
           include: [{model:BasketProduct,
+            raw:true,
+            attributes:["quantity"],
             include: [{model: Product,
-              attributes:["name", "price", "id", "img"]
+              attributes:["id", "name", "price", "img"]
             }],
-            attributes:["id", "quantity"],
+
           }]});
-  //   const basketId = basket.id;//[0].dataValues.
-  //   let basketProducts = await BasketProduct.findAll(
-  //       {
-  //         where: {basketId}
-  //       },
-  // );
 
-    // attributes: [
-    //   'id',
-    //   'quantity',
-    //   // 'name ',
-    //   [sequelize.fn('SUM', sequelize.col('ammount')), 'totalAmount'],
-    // ],
-    // console.log(basketProducts)
+    let coast = 0;
 
-    // const productsIds = basketProducts.map(product => {
-    //   // console.log('------>', product.dataValues);
-    //    return {productId: product.productId, id:product.id }
-    // })
-    //
-    // let productsInfo = [];
-    // for (let prodId of productsIds){
-    //   let { name, id, price, img, info, typeId, brandId } = (await Product.findOne(
-    //       {
-    //         attributes: [
-    //           'id',
-    //           'name',
-    //           'price',
-    //           [sequelize.fn('SUM', sequelize.col('price')), 'totalAmount']
-    //           ],
-    //         where: {id: prodId.productId},
-    //         // include: [{model:ProductInfo, as: 'info'}]
-    //       },
-    //   ))
-    //   info = info.map( i => {
-    //     const {title, description} = i;
-    //     return {title, description};
-    //   });
-    //   productsInfo.push({ name, id, price, img, info, typeId, brandId, productBasketId: prodId.id});
-    // }
-    return basket;
+    const products = basket_products.map(item => {
+      const { quantity } = item
+      const { id, name, price, img } = item.product;
+      coast+=(price*100)*quantity/100;
+      return { id, name,  img, price, quantity,  products_coast:(item.dataValues.quantity*(item.dataValues.product.price*100))/100,};
+    })
+    // if( coast === 0 ){return "empty basket"};
+    // console.log(basket_products)
+    return {coast:coast, products, basket_products};//
   }
 
-  async update(productIds, userId) {
-    await BasketProduct.destroy(
-        {where: {basketId: userId}});
-    const basket = await Basket.findOne({where: {userId}});
-    let basketProducts = [];
-    for (const productId of productIds) {
-      basketProducts.push( await BasketProduct.create({productId, basketId:basket.id}))// = await BasketProduct.create({productId, userId})
+  async create(products, userId) {
+    const {basket_products} = await this.getAll(userId)
+    const oldProducts = basket_products.dataValues
+    console.log(oldProducts, products)
+    // await BasketProduct.destroy(
+    //     {where: {basketId: userId}});
+    // const basket = await Basket.findOne({where: {userId}});
+
+    for (const product of products) {
+
+      await this.addOne(product.productId, product.quantity, userId)// = await BasketProduct.create({productId, userId})
     }
-    return basketProducts;
+    // console.log(await this.getAll(userId))
+    return this.getAll(userId);
   }
 
-  async updateOne(oldProductId, newProduct , userId) {
-    let product = await BasketProduct.findOne(
-        {
-          where: {id: oldProductId},
-        });
-    product = await product.update({productId:newProduct.productId,quantity:newProduct.quantity})
-
-    return product;
-  }
+  // async updateOne(oldProductId, newProduct , userId) {
+  //   let product = await BasketProduct.findOne(
+  //       {
+  //         where: {id: oldProductId},
+  //       });
+  //   product = await product.update({productId:newProduct.productId,quantity:newProduct.quantity})
+  //
+  //   return product;
+  // }
 
   async addOne(productId, quantity, userId) { // productIds[], userId int
 
@@ -108,12 +90,17 @@ class BasketService {
 
         return await product.update( {quantity})
       }
+      await BasketProduct.create({productId, quantity, basketId:id})
+      return true;
     }catch(e) {
-      return res.status(403).json({message: e.message })
+      if ("insert or update on table \"basket_products\" violates foreign key constraint \"basket_products_productId_fkey\"" === e.message){
+        return ApiError.badRequest("incorect product ID")
+      }
+      return ApiError.badRequest(e.message)
 
-        }
-     await BasketProduct.create({productId, quantity, basketId:id})
-    return true;
+      // return res.status(403).json({message: e.message })
+    }
+
 
   }
 

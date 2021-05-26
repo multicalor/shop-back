@@ -4,10 +4,14 @@ const validate = require('../utils/validation');
 
 class UserController {
   async getUser(req, res) {
-    let {userId} = req.id;
-    console.log(userId);
-    const userData = await userService.getUser(userId);
-    return res.json(userData)
+    let {user} = req;
+    const {token, userInfo, coast, products} = await userService.getUser(user);
+    return res.status(200).json({token, userInfo, coast, products});
+    // 400 Bad Request («неправильный, некорректный запрос»)[2][3][4];
+    // 401 Unauthorized («не авторизован (не представился)»)[2][3];
+    // 404 Not Found («не найдено»)[2][3];
+    // 501 Not Implemented («не реализовано»)[2][3];
+    //   418 I’m a teapot («я — чайник»);
   }
 
   async registration(req, res) {
@@ -20,8 +24,6 @@ class UserController {
   }
 
   async login(req, res) {
-    console.log(req.query);
-    console.log(req.body);
     const userInfo = await userService.login(req.body);
     return res.json(userInfo);
   }
