@@ -3,9 +3,8 @@ const {Product, ProductInfo, BasketProduct, Basket, Order, User, OrderProducts} 
 const ApiError = require('../error/ApiError')
 const basketService = require('./basketService')
 
-const jwt = require('jsonwebtoken')
 
-function payment() {
+function payment() {// pass function for payment service
   return true;
 }
 
@@ -22,6 +21,7 @@ class OrderService {
         console.log(info)
         await OrderProducts.create({orderId:order.id, quantity:info.quantity, productId:info.id})
     };
+      await BasketProduct.destroy({where:{basketId:userId}});
     return  order;
   }
 
@@ -62,7 +62,6 @@ class OrderService {
     const order = await Order.findOne({where: {id, userId}})
     await order.update({status: "PAID"})
     if(payment()){
-      await BasketProduct.destroy({where:{basketId:userId}});
       return true;
     }
     return order;
@@ -72,10 +71,7 @@ class OrderService {
     const order = await Order.findOne({where: {id, userId}})
     return await order.update({status})
   }
-
-
   async status (productId){
-
   }
 }
 

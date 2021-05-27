@@ -1,22 +1,41 @@
-const {Type} = require('../models/models');
+const {Type, TypeSubType} = require('../models/models');
 
 class TypeService {
-  async create(name) {
-    const type = await Type.create({name})
-    return {"name":type.name, "id": type.id};
+  async create(name, parentId) {
+    const type = await Type.create({name, parentId})
+    return {"name": type.name, "id": type.id, parentId:type.parentId};
   }
+
+  // async update(name, parentId) {
+  //   const type = await Type.update({name, parentId})
+  //   return {"name": type.name, "id": type.id, parentId:type.parentId};
+  // }
+
 
   async getAll() {
     const types = await Type.findAll();
     console.log(types);
     const typesInfo = types.map(type => {
-      return {"name":type.name, "id": type.id};
+      return {"name": type.name, "id": type.id};
     })
     return typesInfo;
   }
-  //todo Delete brand from ADMIN role
-  async delteOne(req, res){
+  // async linkToCategories
 
+  async linkToCategories(ParentTypeId, childId){
+    const link = await TypeSubType.create({ParentTypeId, childId})
+    console.log("link----->", link);
+    return link;
+  }
+//+++++++++
+  async getCategory(parentId) {
+    let catalog = await Type.findOne(
+        {
+          where: {parentId},
+          include:[{model:Type, as: 'children'}]
+        }
+        );
+  return catalog;
   }
 }
 

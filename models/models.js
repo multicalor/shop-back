@@ -107,10 +107,14 @@ OrderProducts.belongsTo(Order);
 
 Product.hasMany(OrderProducts);
 OrderProducts.belongsTo(Product);
-// OrderProducts.hasOne(Product);
-// Order.belongsToMany(Product, {through: OrderProducts});
+
+// Type.belongsToMany(Type, {through: TypeSubType})
+// Type.belongsToMany(Type, {through: TypeSubType});
+
+Type.hasMany(Type, { as: 'children', foreignKey: 'parentId' });//, through: TypeSubType
+Type.belongsTo(Type, { as: 'parents', foreignKey: 'parentId' });//, through: TypeSubType
 
 
 module.exports = {
-  User, Basket, BasketProduct, Product, Type, Brand, Rating, ProductInfo, TypeBrand, Order, OrderProducts
+  User, Basket, BasketProduct, Product, Type, Brand, Rating, ProductInfo, TypeBrand, Order, OrderProducts, TypeSubType
 }

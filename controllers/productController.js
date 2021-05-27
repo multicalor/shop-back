@@ -22,7 +22,7 @@ class productController {
     let product = await ProductService.getAll(req.query);
     return res.json(product);
   }
-  //todo transfer to sevice
+
   async getOne(req, res) {
     const {id} = req.params;
     console.log(id)
@@ -38,13 +38,6 @@ class productController {
     // const {id} = req.params;
     const newProductData = req.body;
 
-  }
-  //todo transfer to sevice
-  async addToBasketProducts(req, res) {
-    // const {id} = req.params;
-    // const {id} = req.params;
-    // const product ;
-    // return res.json(product);
   }
 
 }
