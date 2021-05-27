@@ -5,8 +5,8 @@ const checkRole = require('../middleware/checkRoleMiddleware')
 
 router.put('/', checkRole('ADMIN'), typeController.create);
 router.get('/', typeController.getAll);
-router.get('/cat', typeController.getCategory);
-router.put('/link', typeController.linkToCategories);
+router.get('/category', typeController.getCategory);
+router.get('/catalog', typeController.getCatalog);
 
 module.exports = router;
 

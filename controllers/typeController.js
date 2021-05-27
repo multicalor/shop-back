@@ -21,11 +21,19 @@ class TypeController {
   }
   //todo Delete type
   async getCategory(req, res){
-    const {ParentTypeId} = req.body;
-    console.log("categoryId", ParentTypeId)
-    const category = await typeService.getCategory(ParentTypeId);
+    const {parentId} = req.body;
+    // console.log("categoryId", parentId)
+    const category = await typeService.getCategory(parentId);
 
     return res.json(category);
+  }
+
+  async getCatalog(req, res){
+    const {id} = req.body;
+    // console.log("categoryId", parentId)
+    const catalog = await typeService.getCatalog(id);
+
+    return res.json(catalog);
   }
 }
 

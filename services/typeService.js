@@ -13,12 +13,16 @@ class TypeService {
 
 
   async getAll() {
-    const types = await Type.findAll();
-    console.log(types);
-    const typesInfo = types.map(type => {
-      return {"name": type.name, "id": type.id};
-    })
-    return typesInfo;
+    const types = await Type.findAll(
+        {
+          attributes:['id', 'name', 'parentId'],
+        }
+    );
+    // console.log(types);
+    // const typesInfo = types.map(type => {
+    //   return {"name": type.name, "id": type.id};
+    // })
+    return types;
   }
   // async linkToCategories
 
@@ -29,14 +33,29 @@ class TypeService {
   }
 //+++++++++
   async getCategory(parentId) {
-    let catalog = await Type.findOne(
+    let category = await Type.findAll(
         {
+
           where: {parentId},
-          include:[{model:Type, as: 'children'}]
+          attributes:['id', 'name', 'parentId'],
+          include:[{model:Type, as: 'children',
+            attributes:['id', 'name', 'parentId']}]
         }
         );
-  return catalog;
+  return category;
   }
+
+
+  async getCatalog(id) {
+  let catalog = await Type.findAll(
+      {
+        where: {id},
+        attributes:['id', 'name', 'parentId'],
+        include:[{model:Type, as: 'children', attributes:['id', 'name', 'parentId']}]
+      }
+  );
+  return catalog;
+}
 }
 
 module.exports = new TypeService()

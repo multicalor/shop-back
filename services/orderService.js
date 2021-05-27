@@ -57,14 +57,21 @@ class OrderService {
         }],
       }]})
   }
-  async payment (id, userId){
+
+  //todo ошибка при получении orderId больше последнего
+  async payment (id, userId) {
     console.log(id)
-    const order = await Order.findOne({where: {id, userId}})
-    await order.update({status: "PAID"})
-    if(payment()){
-      return true;
+    let order = await Order.findAll({where: {userId}})
+    console.log("order.length------>", order.length)
+    if(id<=order.length){
+      order = await Order.findOne({where: {id, userId}})
+      await order.update({status: "PAID"})
+      if(payment()){
+        return true;
+      }
+      return order;
     }
-    return order;
+    return "incorect order id"
   }
 
   async updateStatus(status, id, userId) {

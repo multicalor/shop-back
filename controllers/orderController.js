@@ -39,7 +39,7 @@ class productController {
     const {orderId} = req.body;
     console.log("orderId", orderId)
     const product = await OrderService.payment(orderId, id);
-    return res.json(product);
+    return res.status(200).json(product);
   }
 
   async update(req, res) {

@@ -61,9 +61,9 @@ const TypeBrand = sequelize.define('type_brand', {
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
 })
 //todo write relations
-const TypeSubType = sequelize.define('type_sub_type', {
-  id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-})
+// const TypeSubType = sequelize.define('type_sub_type', {
+//   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+// })
 //todo write relations
 const OrderProducts = sequelize.define('order_products', {
   id:{type:DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
@@ -108,13 +108,9 @@ OrderProducts.belongsTo(Order);
 Product.hasMany(OrderProducts);
 OrderProducts.belongsTo(Product);
 
-// Type.belongsToMany(Type, {through: TypeSubType})
-// Type.belongsToMany(Type, {through: TypeSubType});
-
 Type.hasMany(Type, { as: 'children', foreignKey: 'parentId' });//, through: TypeSubType
 Type.belongsTo(Type, { as: 'parents', foreignKey: 'parentId' });//, through: TypeSubType
 
-
 module.exports = {
-  User, Basket, BasketProduct, Product, Type, Brand, Rating, ProductInfo, TypeBrand, Order, OrderProducts, TypeSubType
+  User, Basket, BasketProduct, Product, Type, Brand, Rating, ProductInfo, TypeBrand, Order, OrderProducts
 }
