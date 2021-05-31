@@ -14,6 +14,11 @@ class TypeController {
     return res.json(types)
   }
 
+  async getAllR(req, res) {
+    const types = await typeService.getAllR();
+    return res.json(types)
+  }
+
   async linkToCategories(req, res) {
     const {ParentTypeId, childId} = req.body;
     const types = await typeService.linkToCategories(ParentTypeId, childId);
@@ -21,7 +26,7 @@ class TypeController {
   }
   //todo Delete type
   async getCategory(req, res){
-    const {parentId} = req.body;
+    const {parentId} = req.params;
     // console.log("categoryId", parentId)
     const category = await typeService.getCategory(parentId);
 
@@ -29,7 +34,7 @@ class TypeController {
   }
 
   async getCatalog(req, res){
-    const {id} = req.body;
+    const {id} = req.params;
     // console.log("categoryId", parentId)
     const catalog = await typeService.getCatalog(id);
 

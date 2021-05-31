@@ -15,7 +15,7 @@ router.use('/user', userRouter);
 // router.use('/seller', userRouter);
 
 router.use('/product', productRouter);
-router.use('/type', typeRouter);
+router.use('/catalog', typeRouter);
 router.use('/brand', brandRouter);
 router.use('/basket', basketRouter);
 router.use('/order', orderRouter);
